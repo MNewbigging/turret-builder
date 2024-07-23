@@ -3,13 +3,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { RenderPipeline } from "./render-pipeline";
 import { AssetManager } from "./asset-manager";
-import { makeAutoObservable, observable } from "mobx";
-
-interface Part {
-  id: string;
-  name: string;
-  object: THREE.Object3D;
-}
+import { action, makeAutoObservable, observable } from "mobx";
+import { Part, PartName, partsMap, PartType } from "./parts";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -20,6 +15,8 @@ export class GameState {
   private controls: OrbitControls;
 
   @observable basePart?: Part;
+
+  currentTurret = new Map<PartType, Part>();
 
   constructor(private assetManager: AssetManager) {
     makeAutoObservable(this);
@@ -37,32 +34,44 @@ export class GameState {
 
     this.scene.background = new THREE.Color("#1680AF");
 
+    // There must always be a base part
+    this.currentTurret.set(PartType.BASE, {
+      name: PartName.BASE_TURRET_1,
+      type: PartType.BASE,
+    });
+    const base = this.assetManager.models.get(PartName.BASE_TURRET_1);
+    this.scene.add(base);
+
     // Start game
     this.update();
   }
 
-  nextBaseItem = () => {
-    // Get list of base items
-    const ids = this.getBaseItemIds();
+  @action nextPartItem = (part: Part) => {
+    // Get list of other parts of this type
+    const partNames = partsMap.get(part.type) ?? [];
 
-    let nextIdIndex = 0;
+    // Get the index of current part in that list
+    const currentIndex = partNames.findIndex(
+      (partName) => partName === part.name
+    );
 
-    if (this.basePart) {
-      const currentIndex = ids.findIndex((id) => id === this.basePart?.id);
-      nextIdIndex = currentIndex === ids.length - 1 ? 0 : currentIndex + 1; // loop around
-      this.scene.remove(this.basePart.object);
-    }
+    // Find the index of the next part, wrap around the list
+    const nextIndex =
+      currentIndex === partNames.length - 1 ? 0 : currentIndex + 1;
 
-    const id = ids[nextIdIndex];
+    // Can now get the next part name
+    const nextPartName = partNames[nextIndex];
 
-    const basePart: Part = {
-      id,
-      name: id, // todo - create nicer user-facing names for items
-      object: this.assetManager.models.get(id),
-    };
+    // Remove the previous part from the scene
+    const prevObject = this.assetManager.models.get(part.name);
+    this.scene.remove(prevObject);
 
-    this.basePart = basePart;
-    this.scene.add(this.basePart.object);
+    // Add the new one to the scene
+    const nextObject = this.assetManager.models.get(nextPartName);
+    this.scene.add(nextObject);
+
+    // This is now the new part of its type
+    this.currentTurret.set(part.type, { name: nextPartName, type: part.type });
   };
 
   private setupCamera() {
@@ -78,15 +87,6 @@ export class GameState {
     const directLight = new THREE.DirectionalLight(undefined, 2);
     directLight.position.copy(new THREE.Vector3(0.75, 1, 0.75).normalize());
     this.scene.add(directLight);
-  }
-
-  private getBaseItemIds() {
-    return [
-      "base-turret-lvl0",
-      "base-turret-lvl1",
-      "base-turret-lvl2",
-      "base-turret-lt-lvl1",
-    ];
   }
 
   private update = () => {

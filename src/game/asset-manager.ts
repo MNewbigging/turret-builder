@@ -3,6 +3,7 @@ import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
+import { PartName } from "./parts";
 
 export class AssetManager {
   models = new Map();
@@ -62,7 +63,7 @@ export class AssetManager {
       import.meta.url
     ).href;
     fbxLoader.load(baseTurretLvl0, (group) =>
-      this.models.set("base-turret-lvl0", group)
+      this.models.set(PartName.BASE_TURRET_1, group)
     );
 
     const baseTurretLvl1 = new URL(
@@ -70,7 +71,7 @@ export class AssetManager {
       import.meta.url
     ).href;
     fbxLoader.load(baseTurretLvl1, (group) =>
-      this.models.set("base-turret-lvl1", group)
+      this.models.set(PartName.BASE_TURRET_2, group)
     );
 
     const baseTurretLvl2 = new URL(
@@ -78,7 +79,7 @@ export class AssetManager {
       import.meta.url
     ).href;
     fbxLoader.load(baseTurretLvl2, (group) =>
-      this.models.set("base-turret-lvl2", group)
+      this.models.set(PartName.BASE_TURRET_3, group)
     );
 
     const baseTurretLtLvl1 = new URL(
@@ -86,7 +87,15 @@ export class AssetManager {
       import.meta.url
     ).href;
     fbxLoader.load(baseTurretLtLvl1, (group) =>
-      this.models.set("base-turret-lt-lvl1", group)
+      this.models.set(PartName.BASE_TURRET_LEGS_1, group)
+    );
+
+    // mounts
+
+    const baseTopMount = new URL("/models/base_top_mount.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(baseTopMount, (group) =>
+      this.models.set("base-top-mount", group)
     );
   }
 
