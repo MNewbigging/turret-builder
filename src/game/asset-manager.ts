@@ -66,28 +66,18 @@ export class AssetManager {
       this.models.set(PartName.BASE_TURRET_1, group)
     );
 
-    const baseTurretLvl1 = new URL(
-      "/models/base_turret_lvl1.fbx",
-      import.meta.url
-    ).href;
-    fbxLoader.load(baseTurretLvl1, (group) =>
-      this.models.set(PartName.BASE_TURRET_2, group)
-    );
-
-    const baseTurretLvl2 = new URL(
-      "/models/base_turret_lvl2.fbx",
-      import.meta.url
-    ).href;
-    fbxLoader.load(baseTurretLvl2, (group) =>
-      this.models.set(PartName.BASE_TURRET_3, group)
-    );
-
     const baseTurretLtLvl1 = new URL(
       "/models/base_turret_lt_lvl1.fbx",
       import.meta.url
     ).href;
     fbxLoader.load(baseTurretLtLvl1, (group) =>
       this.models.set(PartName.BASE_TURRET_LEGS_1, group)
+    );
+
+    const baseTower0 = new URL("/models/base_tower_lvl0.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(baseTower0, (group) =>
+      this.models.set(PartName.BASE_TOWER_1, group)
     );
 
     // mounts

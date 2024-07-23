@@ -46,6 +46,7 @@ export class GameState {
     this.update();
   }
 
+  // Cycles through other parts of the same type
   @action nextPartItem = (part: Part) => {
     // Get list of other parts of this type
     const partNames = partsMap.get(part.type) ?? [];
