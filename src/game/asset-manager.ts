@@ -45,7 +45,6 @@ export class AssetManager {
 
     this.loadModels(fbxLoader, gltfLoader);
     this.loadTextures(rgbeLoader, textureLoader);
-    this.loadAnimations(fbxLoader);
 
     return new Promise((resolve) => {
       this.loadingManager.onLoad = () => {
@@ -95,16 +94,6 @@ export class AssetManager {
     rgbeLoader: RGBELoader,
     textureLoader: THREE.TextureLoader
   ) {
-    // skybox
-    const orchardUrl = new URL(
-      "/textures/orchard_cartoony.hdr",
-      import.meta.url
-    ).href;
-    rgbeLoader.load(orchardUrl, (texture) => {
-      texture.mapping = THREE.EquirectangularReflectionMapping;
-      this.textures.set("hdri", texture);
-    });
-
     // turret textures
 
     const turretBlackUrl = new URL(
@@ -151,18 +140,6 @@ export class AssetManager {
     textureLoader.load(turretMetalness, (texture) =>
       this.textures.set("turret-metalness", texture)
     );
-  }
-
-  private loadAnimations(fbxLoader: FBXLoader) {
-    // bandit idle
-    const idleUrl = new URL("/anims/idle.fbx", import.meta.url).href;
-    fbxLoader.load(idleUrl, (group) => {
-      if (group.animations.length) {
-        const clip = group.animations[0];
-        clip.name = "idle";
-        this.animations.set("idle", clip);
-      }
-    });
   }
 
   private setupTurrets() {

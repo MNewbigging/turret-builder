@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { RenderPipeline } from "./render-pipeline";
-import { AnimatedCharacter } from "./animated-character";
 import { AssetManager } from "./asset-manager";
 
 export class GameState {
@@ -47,7 +46,7 @@ export class GameState {
   }
 
   private setupObjects() {
-    const base = this.assetManager.cloneModel("base-turret-lt-lvl1");
+    const base = this.assetManager.cloneModel("base-turret-lvl2");
 
     this.scene.add(base);
   }
