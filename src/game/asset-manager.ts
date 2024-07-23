@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
@@ -23,6 +24,19 @@ export class AssetManager {
     });
   }
 
+  cloneModel(name: string): THREE.Object3D {
+    const model = this.models.get(name);
+    if (model) {
+      return SkeletonUtils.clone(model);
+    }
+
+    // Ensure we always return an object 3d
+    return new THREE.Mesh(
+      new THREE.SphereGeometry(),
+      new THREE.MeshBasicMaterial({ color: "red" })
+    );
+  }
+
   load(): Promise<void> {
     const fbxLoader = new FBXLoader(this.loadingManager);
     const gltfLoader = new GLTFLoader(this.loadingManager);
@@ -35,41 +49,28 @@ export class AssetManager {
 
     return new Promise((resolve) => {
       this.loadingManager.onLoad = () => {
+        this.setupTurretTextures();
         resolve();
       };
     });
   }
 
   private loadModels(fbxLoader: FBXLoader, gltfLoader: GLTFLoader) {
-    // bandit
+    // bases
 
-    const banditUrl = new URL("/models/bandit.fbx", import.meta.url).href;
-    fbxLoader.load(banditUrl, (group) => this.models.set("bandit", group));
-
-    // box
-    const boxUrl = new URL("/models/box-small.glb", import.meta.url).href;
-    gltfLoader.load(boxUrl, (gltf) => {
-      gltf.scene.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.material.metalness = 0; // kenney assets require this to render correctly
-        }
-      });
-      this.models.set("box", gltf.scene);
-    });
+    const baseTurretLvl0 = new URL(
+      "/models/base_turret_lvl0.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(baseTurretLvl0, (group) =>
+      this.models.set("base-turret-lvl0", group)
+    );
   }
 
   private loadTextures(
     rgbeLoader: RGBELoader,
     textureLoader: THREE.TextureLoader
   ) {
-    // bandit texture
-    const banditUrl = new URL("/textures/bandit-texture.png", import.meta.url)
-      .href;
-    textureLoader.load(banditUrl, (texture) => {
-      texture.encoding = THREE.sRGBEncoding;
-      this.textures.set("bandit", texture);
-    });
-
     // skybox
     const orchardUrl = new URL(
       "/textures/orchard_cartoony.hdr",
@@ -79,6 +80,53 @@ export class AssetManager {
       texture.mapping = THREE.EquirectangularReflectionMapping;
       this.textures.set("hdri", texture);
     });
+
+    // turret textures
+
+    const turretBlackUrl = new URL(
+      "/textures/Turrets_albedo_Black.png",
+      import.meta.url
+    ).href;
+    textureLoader.load(turretBlackUrl, (texture) => {
+      this.textures.set("turret-black", texture);
+    });
+
+    const turretNormal = new URL(
+      "/textures/Turrets_normal_PBR.png",
+      import.meta.url
+    ).href;
+    textureLoader.load(turretNormal, (texture) =>
+      this.textures.set("turret-normal", texture)
+    );
+
+    const turretAo = new URL("/textures/Turrets_AO.png", import.meta.url).href;
+    textureLoader.load(turretAo, (texture) =>
+      this.textures.set("turret-ao", texture)
+    );
+
+    const turretEmission = new URL(
+      "/textures/Turrets_Emission.png",
+      import.meta.url
+    ).href;
+    textureLoader.load(turretEmission, (texture) =>
+      this.textures.set("turret-emission", texture)
+    );
+
+    const turretRoughness = new URL(
+      "/textures/Turrets_Roughness.png",
+      import.meta.url
+    ).href;
+    textureLoader.load(turretRoughness, (texture) =>
+      this.textures.set("turret-roughness", texture)
+    );
+
+    const turretMetalness = new URL(
+      "/textures/Turrets_Metalness.png",
+      import.meta.url
+    ).href;
+    textureLoader.load(turretMetalness, (texture) =>
+      this.textures.set("turret-metalness", texture)
+    );
   }
 
   private loadAnimations(fbxLoader: FBXLoader) {
@@ -90,6 +138,24 @@ export class AssetManager {
         clip.name = "idle";
         this.animations.set("idle", clip);
       }
+    });
+  }
+
+  private setupTurretTextures() {
+    // Get each turret piece and apply shared maps and default albedo map
+    this.models.forEach((model: THREE.Group) => {
+      model.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          const mat = new THREE.MeshPhysicalMaterial();
+          mat.map = this.textures.get("turret-black");
+          mat.normalMap = this.textures.get("turret-normal");
+          mat.aoMap = this.textures.get("turret-ao");
+          mat.roughnessMap = this.textures.get("turret-roughness");
+          mat.metalnessMap = this.textures.get("turret-metalness");
+          mat.emissiveMap = this.textures.get("turret-emission");
+          child.material = mat;
+        }
+      });
     });
   }
 }

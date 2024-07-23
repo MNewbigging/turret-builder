@@ -13,8 +13,6 @@ export class GameState {
   private camera = new THREE.PerspectiveCamera();
   private controls: OrbitControls;
 
-  private animatedCharacter: AnimatedCharacter;
-
   constructor(private assetManager: AssetManager) {
     this.setupCamera();
 
@@ -28,10 +26,6 @@ export class GameState {
     this.controls.target.set(0, 1, 0);
 
     this.scene.background = new THREE.Color("#1680AF");
-
-    this.animatedCharacter = this.setupAnimatedCharacter();
-    this.scene.add(this.animatedCharacter.object);
-    this.animatedCharacter.playAnimation("idle");
 
     // Start game
     this.update();
@@ -53,24 +47,10 @@ export class GameState {
   }
 
   private setupObjects() {
-    const box = this.assetManager.models.get("box");
-    this.scene.add(box);
-  }
+    const base = this.assetManager.cloneModel("base-turret-lvl0");
+    base.scale.multiplyScalar(0.01);
 
-  private setupAnimatedCharacter(): AnimatedCharacter {
-    const object = this.assetManager.models.get("bandit");
-    object.position.z = -0.5;
-    this.assetManager.applyModelTexture(object, "bandit");
-
-    const mixer = new THREE.AnimationMixer(object);
-    const actions = new Map<string, THREE.AnimationAction>();
-    const idleClip = this.assetManager.animations.get("idle");
-    if (idleClip) {
-      const idleAction = mixer.clipAction(idleClip);
-      actions.set("idle", idleAction);
-    }
-
-    return new AnimatedCharacter(object, mixer, actions);
+    this.scene.add(base);
   }
 
   private update = () => {
@@ -79,8 +59,6 @@ export class GameState {
     const dt = this.clock.getDelta();
 
     this.controls.update();
-
-    this.animatedCharacter.update(dt);
 
     this.renderPipeline.render(dt);
   };
