@@ -47,8 +47,7 @@ export class GameState {
   }
 
   private setupObjects() {
-    const base = this.assetManager.cloneModel("base-turret-lvl0");
-    base.scale.multiplyScalar(0.01);
+    const base = this.assetManager.cloneModel("base-turret-lt-lvl1");
 
     this.scene.add(base);
   }

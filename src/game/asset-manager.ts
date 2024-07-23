@@ -49,7 +49,7 @@ export class AssetManager {
 
     return new Promise((resolve) => {
       this.loadingManager.onLoad = () => {
-        this.setupTurretTextures();
+        this.setupTurrets();
         resolve();
       };
     });
@@ -64,6 +64,30 @@ export class AssetManager {
     ).href;
     fbxLoader.load(baseTurretLvl0, (group) =>
       this.models.set("base-turret-lvl0", group)
+    );
+
+    const baseTurretLvl1 = new URL(
+      "/models/base_turret_lvl1.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(baseTurretLvl1, (group) =>
+      this.models.set("base-turret-lvl1", group)
+    );
+
+    const baseTurretLvl2 = new URL(
+      "/models/base_turret_lvl2.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(baseTurretLvl2, (group) =>
+      this.models.set("base-turret-lvl2", group)
+    );
+
+    const baseTurretLtLvl1 = new URL(
+      "/models/base_turret_lt_lvl1.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(baseTurretLtLvl1, (group) =>
+      this.models.set("base-turret-lt-lvl1", group)
     );
   }
 
@@ -141,9 +165,10 @@ export class AssetManager {
     });
   }
 
-  private setupTurretTextures() {
+  private setupTurrets() {
     // Get each turret piece and apply shared maps and default albedo map
     this.models.forEach((model: THREE.Group) => {
+      model.scale.multiplyScalar(0.01);
       model.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           const mat = new THREE.MeshPhysicalMaterial();
