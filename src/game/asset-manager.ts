@@ -56,7 +56,8 @@ export class AssetManager {
   }
 
   private loadModels(fbxLoader: FBXLoader, gltfLoader: GLTFLoader) {
-    // bases
+    // turret bases
+
     const baseTurrets = new URL("/models/Base_Turrets.fbx", import.meta.url)
       .href;
     fbxLoader.load(baseTurrets, (group) => {
@@ -66,6 +67,20 @@ export class AssetManager {
         this.models.set(child.name, child);
       });
     });
+
+    // base mounts
+
+    const baseMount = new URL("/models/Base_Top_Mount.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(baseMount, (group) => this.models.set(group.name, group));
+
+    const baseMountSimple = new URL(
+      "/models/Base_Top_Mount_Simple.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(baseMountSimple, (group) =>
+      this.models.set(group.name, group)
+    );
   }
 
   private loadTextures(

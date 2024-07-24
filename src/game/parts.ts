@@ -5,12 +5,14 @@ export enum PartName {
   BASE_TURRET_3 = "Base_Turret_Lvl3",
   BASE_TURRET_4 = "Base_Turret_Lvl4",
   BASE_TURRET_5 = "Base_Turret_Lvl5",
+  BASE_MOUNT = "Base_Top_Mount",
+  BASE_MOUNT_SMALL = "Base_Top_Mount_Simple",
 }
 
 export enum PartType {
   BASE = "Base",
   MID = "Mid section",
-  HEAD_MOUNT = "Head mount",
+  BASE_MOUNT = "Base mount",
   HEAD = "Head",
   ARM_MOUNT = "Arm mount",
   ARM = "Arm",
@@ -27,6 +29,7 @@ export const partsMap = new Map<PartType, PartName[]>([
       PartName.BASE_TURRET_5,
     ],
   ],
+  [PartType.BASE_MOUNT, [PartName.BASE_MOUNT, PartName.BASE_MOUNT_SMALL]],
 ]);
 
 export interface Part {
