@@ -14,9 +14,9 @@ export class GameState {
   private camera = new THREE.PerspectiveCamera();
   private controls: OrbitControls;
 
-  @observable basePart?: Part;
-
   currentTurret = new Map<PartType, Part>();
+
+  object?: THREE.Object3D;
 
   constructor(private assetManager: AssetManager) {
     makeAutoObservable(this);
@@ -25,7 +25,7 @@ export class GameState {
 
     this.renderPipeline = new RenderPipeline(this.scene, this.camera);
 
-    this.setupLights();
+    //this.setupLights();
 
     this.controls = new OrbitControls(this.camera, this.renderPipeline.canvas);
     this.controls.enableDamping = true;
@@ -33,14 +33,18 @@ export class GameState {
     this.controls.target.set(0, 1, 0);
 
     this.scene.background = new THREE.Color("#1680AF");
+    const envMap = this.assetManager.textures.get("env-map");
+    this.scene.background = envMap;
+    this.scene.environment = envMap;
 
     // There must always be a base part
     this.currentTurret.set(PartType.BASE, {
       name: PartName.BASE_TURRET_1,
       type: PartType.BASE,
     });
-    const base = this.assetManager.models.get(PartName.BASE_TURRET_1);
+    const base = this.assetManager.models.get(PartName.BASE_TOWER_1);
     this.scene.add(base);
+    this.object = base;
 
     // Start game
     this.update();
@@ -70,6 +74,7 @@ export class GameState {
     // Add the new one to the scene
     const nextObject = this.assetManager.models.get(nextPartName);
     this.scene.add(nextObject);
+    this.object = nextObject;
 
     // This is now the new part of its type
     this.currentTurret.set(part.type, { name: nextPartName, type: part.type });
@@ -87,6 +92,7 @@ export class GameState {
 
     const directLight = new THREE.DirectionalLight(undefined, 2);
     directLight.position.copy(new THREE.Vector3(0.75, 1, 0.75).normalize());
+
     this.scene.add(directLight);
   }
 
@@ -96,6 +102,10 @@ export class GameState {
     const dt = this.clock.getDelta();
 
     this.controls.update();
+
+    if (this.object) {
+      this.object.rotation.z += dt * 0.5;
+    }
 
     this.renderPipeline.render(dt);
   };

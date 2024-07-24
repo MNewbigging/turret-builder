@@ -80,6 +80,12 @@ export class AssetManager {
       this.models.set(PartName.BASE_TOWER_1, group)
     );
 
+    const demoTurret = new URL("/models/Demo_Turret_1.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(demoTurret, (group) =>
+      this.models.set("demo-turret", group)
+    );
+
     // mounts
 
     const baseTopMount = new URL("/models/base_top_mount.fbx", import.meta.url)
@@ -93,6 +99,16 @@ export class AssetManager {
     rgbeLoader: RGBELoader,
     textureLoader: THREE.TextureLoader
   ) {
+    // env map
+    const envMap = new URL(
+      "/textures/zwartkops_straight_morning_1k.hdr",
+      import.meta.url
+    ).href;
+    rgbeLoader.load(envMap, (texture) => {
+      texture.mapping = THREE.EquirectangularReflectionMapping;
+      this.textures.set("env-map", texture);
+    });
+
     // turret textures
 
     const turretBlackUrl = new URL(
@@ -103,42 +119,55 @@ export class AssetManager {
       this.textures.set("turret-black", texture);
     });
 
+    const turretRed = new URL(
+      "/textures/Turrets_albedo_Red.png",
+      import.meta.url
+    ).href;
+    textureLoader.load(turretRed, (texture) =>
+      this.textures.set("turret-red", texture)
+    );
+
     const turretNormal = new URL(
       "/textures/Turrets_normal_PBR.png",
       import.meta.url
     ).href;
-    textureLoader.load(turretNormal, (texture) =>
-      this.textures.set("turret-normal", texture)
-    );
+    textureLoader.load(turretNormal, (texture) => {
+      texture.colorSpace = THREE.LinearSRGBColorSpace;
+      this.textures.set("turret-normal", texture);
+    });
 
     const turretAo = new URL("/textures/Turrets_AO.png", import.meta.url).href;
-    textureLoader.load(turretAo, (texture) =>
-      this.textures.set("turret-ao", texture)
-    );
+    textureLoader.load(turretAo, (texture) => {
+      texture.colorSpace = THREE.LinearSRGBColorSpace;
+      this.textures.set("turret-ao", texture);
+    });
 
     const turretEmission = new URL(
       "/textures/Turrets_Emission.png",
       import.meta.url
     ).href;
-    textureLoader.load(turretEmission, (texture) =>
-      this.textures.set("turret-emission", texture)
-    );
+    textureLoader.load(turretEmission, (texture) => {
+      texture.colorSpace = THREE.LinearSRGBColorSpace;
+      this.textures.set("turret-emission", texture);
+    });
 
     const turretRoughness = new URL(
       "/textures/Turrets_Roughness.png",
       import.meta.url
     ).href;
-    textureLoader.load(turretRoughness, (texture) =>
-      this.textures.set("turret-roughness", texture)
-    );
+    textureLoader.load(turretRoughness, (texture) => {
+      texture.colorSpace = THREE.LinearSRGBColorSpace;
+      this.textures.set("turret-roughness", texture);
+    });
 
     const turretMetalness = new URL(
       "/textures/Turrets_Metalness.png",
       import.meta.url
     ).href;
-    textureLoader.load(turretMetalness, (texture) =>
-      this.textures.set("turret-metalness", texture)
-    );
+    textureLoader.load(turretMetalness, (texture) => {
+      texture.colorSpace = THREE.LinearSRGBColorSpace;
+      this.textures.set("turret-metalness", texture);
+    });
   }
 
   private setupTurrets() {
@@ -148,12 +177,14 @@ export class AssetManager {
       model.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           const mat = new THREE.MeshPhysicalMaterial();
-          mat.map = this.textures.get("turret-black");
+          mat.map = this.textures.get("turret-red");
           mat.normalMap = this.textures.get("turret-normal");
           mat.aoMap = this.textures.get("turret-ao");
           mat.roughnessMap = this.textures.get("turret-roughness");
-          mat.metalnessMap = this.textures.get("turret-metalness");
+          mat.metalness = 1;
           mat.emissiveMap = this.textures.get("turret-emission");
+          mat.emissiveIntensity = 10;
+          mat.emissive = new THREE.Color(0xff0000);
           child.material = mat;
         }
       });

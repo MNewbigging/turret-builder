@@ -4,6 +4,7 @@ import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectio
 import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass";
 
 export class RenderPipeline {
   private effectComposer: EffectComposer;
@@ -11,28 +12,29 @@ export class RenderPipeline {
   private outlinePass: OutlinePass;
   private renderer: THREE.WebGLRenderer;
 
+  private canvasSize = new THREE.Vector2();
+  private renderSize = new THREE.Vector2();
+
   constructor(
     private scene: THREE.Scene,
     private camera: THREE.PerspectiveCamera
   ) {
     // Setup renderer
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer();
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.outputEncoding = THREE.sRGBEncoding;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.LinearToneMapping;
-    this.renderer.toneMappingExposure = 1;
-    this.renderer.shadowMap.enabled = true;
+    this.renderer.toneMappingExposure = 0.8;
 
     // Add canvas to dom
     const canvas = this.canvas;
     document.body.appendChild(canvas);
 
-    window.addEventListener("resize", this.onCanvasResize);
-    this.onCanvasResize();
-
     // Setup pipeline
-    this.effectComposer = new EffectComposer(this.renderer);
-    this.effectComposer.renderToScreen = true;
+    const rt = new THREE.WebGLRenderTarget(1, 1, {
+      type: THREE.FloatType,
+    });
+    this.effectComposer = new EffectComposer(this.renderer, rt);
 
     // Initial render acts as input for next pass
     this.renderPass = new RenderPass(scene, camera);
@@ -51,7 +53,7 @@ export class RenderPipeline {
     this.effectComposer.addPass(this.outlinePass);
 
     // This corrects the output from the outline pass for srgbe encoding
-    this.effectComposer.addPass(new ShaderPass(GammaCorrectionShader));
+    this.effectComposer.addPass(new OutputPass());
   }
 
   get canvas() {
@@ -59,6 +61,20 @@ export class RenderPipeline {
   }
 
   render(dt: number) {
+    this.canvasSize.set(this.canvas.clientWidth, this.canvas.clientHeight);
+
+    if (!this.renderSize.equals(this.canvasSize)) {
+      this.renderSize.copy(this.canvasSize);
+
+      this.renderer.setSize(this.renderSize.x, this.renderSize.y, false);
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      this.effectComposer.setSize(this.renderSize.x, this.renderSize.y);
+
+      this.camera.aspect = this.canvas.clientWidth / this.canvas.clientHeight;
+      this.camera.updateProjectionMatrix();
+    }
+
     this.effectComposer.render(dt);
   }
 
@@ -69,18 +85,4 @@ export class RenderPipeline {
   clearOutlines() {
     this.outlinePass.selectedObjects = [];
   }
-
-  private onCanvasResize = () => {
-    this.renderer.setSize(
-      this.canvas.clientWidth,
-      this.canvas.clientHeight,
-      false
-    );
-
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    this.camera.aspect = this.canvas.clientWidth / this.canvas.clientHeight;
-
-    this.camera.updateProjectionMatrix();
-  };
 }
