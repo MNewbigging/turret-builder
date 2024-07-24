@@ -23,7 +23,9 @@ export const GameScreen: React.FC<GameScreenProps> = observer(
           >
             Prev
           </div>
-          <div className="button">Select</div>
+          <div className="button" onClick={gameState.selectPartChoice}>
+            Select
+          </div>
           <div
             className="button"
             onClick={() => gameState.changePartChoice("next")}

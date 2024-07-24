@@ -22,6 +22,7 @@ export const partsMap = new Map<PartType, PartName[]>([
   [
     PartType.BASE,
     [
+      PartName.BASE_TURRET_0,
       PartName.BASE_TURRET_1,
       PartName.BASE_TURRET_2,
       PartName.BASE_TURRET_3,

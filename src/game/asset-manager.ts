@@ -61,9 +61,9 @@ export class AssetManager {
     const baseTurrets = new URL("/models/Base_Turrets.fbx", import.meta.url)
       .href;
     fbxLoader.load(baseTurrets, (group) => {
+      console.log("base turrets", group);
       // Pull out the children
       group.children.forEach((child) => {
-        console.log(child.name);
         this.models.set(child.name, child);
       });
     });

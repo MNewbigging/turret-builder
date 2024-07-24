@@ -19,6 +19,8 @@ export class GameState {
   @observable currentPartType?: PartType;
   currentPartChoice?: PartName;
 
+  private mountPoint = new THREE.Vector3();
+
   constructor(private assetManager: AssetManager) {
     makeAutoObservable(this);
 
@@ -65,10 +67,42 @@ export class GameState {
     this.scene.remove(prevObject);
 
     const nextPartName = partNames[nextIndex];
-    this.scene.add(this.assetManager.models.get(nextPartName));
+    const nextObject = this.assetManager.models.get(nextPartName);
+    nextObject.position.copy(this.mountPoint);
+    this.scene.add(nextObject);
 
     this.currentPartChoice = nextPartName;
   }
+
+  selectPartChoice = () => {
+    // Get 3d object for this part
+    const object = this.assetManager.models.get(
+      this.currentPartChoice
+    ) as THREE.Object3D;
+    console.log(object);
+
+    // Get mount point for next part choice
+    const mountChild = getChildNameIncludes(object, "Mount");
+    if (!mountChild) {
+      console.error("No mounting point found");
+      return;
+    }
+
+    // Position offsets need scaling as well
+    const mountPosition = mountChild.position;
+    mountPosition.multiplyScalar(0.01);
+
+    this.mountPoint.copy(mountPosition);
+
+    let nextPartType = PartType.BASE;
+    switch (this.currentPartType) {
+      case PartType.BASE:
+        nextPartType = PartType.BASE_MOUNT;
+        break;
+    }
+
+    this.nextPartType(nextPartType);
+  };
 
   @action nextPartType(type: PartType) {
     this.currentPartType = type;
@@ -80,6 +114,7 @@ export class GameState {
     this.currentPartChoice = partNames[0];
 
     const object = this.assetManager.models.get(this.currentPartChoice);
+    object.position.copy(this.mountPoint);
     this.scene.add(object);
   }
 
@@ -116,4 +151,18 @@ export class GameState {
   private getPrevIndex(currentIndex: number, length: number) {
     return currentIndex === 0 ? length - 1 : currentIndex - 1;
   }
+}
+
+function getChildNameIncludes(
+  object: THREE.Object3D,
+  name: string
+): THREE.Object3D | undefined {
+  let foundChild: THREE.Object3D | undefined = undefined;
+  object.traverse((child) => {
+    if (child.name.includes(name)) {
+      foundChild = child as THREE.Object3D;
+    }
+  });
+
+  return foundChild;
 }
