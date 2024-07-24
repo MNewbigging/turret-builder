@@ -16,8 +16,6 @@ export class GameState {
 
   currentTurret = new Map<PartType, Part>();
 
-  object?: THREE.Object3D;
-
   constructor(private assetManager: AssetManager) {
     makeAutoObservable(this);
 
@@ -31,10 +29,10 @@ export class GameState {
     this.controls.enableDamping = true;
     this.controls.enablePan = false;
     this.controls.target.set(0, 1, 0);
+    this.camera.position.z = 5;
 
     this.scene.background = new THREE.Color("#1680AF");
     const envMap = this.assetManager.textures.get("env-map");
-    this.scene.background = envMap;
     this.scene.environment = envMap;
 
     // There must always be a base part
@@ -44,7 +42,6 @@ export class GameState {
     });
     const base = this.assetManager.models.get(PartName.BASE_TOWER_1);
     this.scene.add(base);
-    this.object = base;
 
     // Start game
     this.update();
@@ -74,7 +71,6 @@ export class GameState {
     // Add the new one to the scene
     const nextObject = this.assetManager.models.get(nextPartName);
     this.scene.add(nextObject);
-    this.object = nextObject;
 
     // This is now the new part of its type
     this.currentTurret.set(part.type, { name: nextPartName, type: part.type });
@@ -102,10 +98,6 @@ export class GameState {
     const dt = this.clock.getDelta();
 
     this.controls.update();
-
-    if (this.object) {
-      this.object.rotation.z += dt * 0.5;
-    }
 
     this.renderPipeline.render(dt);
   };

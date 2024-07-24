@@ -1,30 +1,33 @@
 .game-screen {
   width: 100%;
   height: 100%;
+  padding: 50px;
 
-  .builder {
-    width: 200px;
-    height: 200px;
-    background-color: #2c2c2c;
-    border: 1px solid white;
-    border-radius: 4px;
-    color: white;
-    pointer-events: all;
+  color: white;
+  font-size: 20px;
+  user-select: none;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .choose-text {
+    width: 100%;
 
     display: flex;
-    flex-direction: column-reverse;
-    justify-content: end;
-    align-items: center;
-    gap: 20px;
+    justify-content: center;
+  }
 
-    .selector-row {
-      display: flex;
-      gap: 20px;
+  .switcher {
+    width: 100%;
 
-      .selector-button {
-        cursor: pointer;
-        user-select: none;
-      }
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+
+    .button {
+      pointer-events: all;
+      cursor: pointer;
     }
   }
 }
