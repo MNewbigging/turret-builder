@@ -4,7 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RenderPipeline } from "./render-pipeline";
 import { AssetManager } from "./asset-manager";
 import { action, makeAutoObservable, observable } from "mobx";
-import { Part, PartName, partsMap, PartType } from "./parts";
+import { Part, PartName, partsMap, PartType, typesMap } from "./parts";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -75,11 +75,14 @@ export class GameState {
   }
 
   selectPartChoice = () => {
+    if (!this.currentPartType || !this.currentPartChoice) {
+      return;
+    }
+
     // Get 3d object for this part
     const object = this.assetManager.models.get(
       this.currentPartChoice
     ) as THREE.Object3D;
-    console.log(object);
 
     // Get mount point for next part choice
     const mountChild = getChildNameIncludes(object, "Mount");
@@ -94,12 +97,7 @@ export class GameState {
 
     this.mountPoint.copy(mountPosition);
 
-    let nextPartType = PartType.BASE;
-    switch (this.currentPartType) {
-      case PartType.BASE:
-        nextPartType = PartType.BASE_MOUNT;
-        break;
-    }
+    let nextPartType = typesMap.get(this.currentPartType) ?? PartType.BASE;
 
     this.nextPartType(nextPartType);
   };

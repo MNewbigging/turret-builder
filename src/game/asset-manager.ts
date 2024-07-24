@@ -61,7 +61,6 @@ export class AssetManager {
     const baseTurrets = new URL("/models/Base_Turrets.fbx", import.meta.url)
       .href;
     fbxLoader.load(baseTurrets, (group) => {
-      console.log("base turrets", group);
       // Pull out the children
       group.children.forEach((child) => {
         this.models.set(child.name, child);
@@ -81,6 +80,38 @@ export class AssetManager {
     fbxLoader.load(baseMountSimple, (group) =>
       this.models.set(group.name, group)
     );
+
+    // cockpits
+
+    const botRound1 = new URL(
+      "/models/Cockpit_Bot_Round_Lvl1.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(botRound1, (group) => this.models.set(group.name, group));
+
+    const botRound2 = new URL(
+      "/models/Cockpit_Bot_Round_Lvl2.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(botRound2, (group) => this.models.set(group.name, group));
+
+    const botSpy = new URL(
+      "/models/Cockpit_Bot_Spy@Cockpit_Bot_Spy_Look_Around.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(botSpy, (group) => this.models.set(group.name, group));
+
+    const wedge1 = new URL(
+      "/models/Cockpit_Bot_Wedge_Lvl1.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(wedge1, (group) => this.models.set(group.name, group));
+
+    const wedge2 = new URL(
+      "/models/Cockpit_Bot_Wedge_Lvl2.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(wedge2, (group) => this.models.set(group.name, group));
   }
 
   private loadTextures(
