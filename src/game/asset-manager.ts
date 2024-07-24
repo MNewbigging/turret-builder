@@ -3,7 +3,6 @@ import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
-import { PartName } from "./parts";
 
 export class AssetManager {
   models = new Map();
@@ -112,6 +111,26 @@ export class AssetManager {
       import.meta.url
     ).href;
     fbxLoader.load(wedge2, (group) => this.models.set(group.name, group));
+
+    // backpack brackets
+
+    const bracket1 = new URL(
+      "/models/Backpack_Bracket_Lvl1.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(bracket1, (group) => this.models.set(group.name, group));
+
+    const bracket2 = new URL(
+      "/models/Backpack_Bracket_Lvl2.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(bracket2, (group) => this.models.set(group.name, group));
+
+    const bracket3 = new URL(
+      "/models/Backpack_Bracket_Lvl3.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(bracket3, (group) => this.models.set(group.name, group));
   }
 
   private loadTextures(

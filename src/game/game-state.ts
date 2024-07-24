@@ -4,7 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RenderPipeline } from "./render-pipeline";
 import { AssetManager } from "./asset-manager";
 import { action, makeAutoObservable, observable } from "mobx";
-import { Part, PartName, partsMap, PartType, typesMap } from "./parts";
+import { getBases, Part } from "./parts";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -14,12 +14,12 @@ export class GameState {
   private camera = new THREE.PerspectiveCamera();
   private controls: OrbitControls;
 
-  turret = new Map<PartType, Part>();
-
-  @observable currentPartType?: PartType;
-  currentPartChoice?: PartName;
+  private availableParts: Part[] = [];
+  @observable currentPart: Part;
 
   private mountPoint = new THREE.Vector3();
+
+  private turret: Part[] = [];
 
   constructor(private assetManager: AssetManager) {
     makeAutoObservable(this);
@@ -40,81 +40,56 @@ export class GameState {
     const envMap = this.assetManager.textures.get("env-map");
     this.scene.environment = envMap;
 
-    // Start with the base
-    this.nextPartType(PartType.BASE);
+    // Start with the bases
+    this.availableParts = [...getBases()];
+    this.currentPart = this.availableParts[0];
+    const baseObject = this.assetManager.models.get(this.currentPart.name);
+    this.scene.add(baseObject);
 
     // Start game
     this.update();
   }
 
-  changePartChoice(direction: "prev" | "next") {
-    if (!this.currentPartType || !this.currentPartChoice) {
-      return;
-    }
-
-    const partNames = partsMap.get(this.currentPartType) ?? [];
-
-    const currentIndex = partNames.findIndex(
-      (partName) => partName === this.currentPartChoice
+  @action changePartChoice(direction: "prev" | "next") {
+    // Cycle through currently available part choices
+    const currentIndex = this.availableParts.findIndex(
+      (part) => part.name === this.currentPart.name
     );
 
     const nextIndex =
       direction === "next"
-        ? this.getNextIndex(currentIndex, partNames.length)
-        : this.getPrevIndex(currentIndex, partNames.length);
+        ? this.getNextIndex(currentIndex, this.availableParts.length)
+        : this.getPrevIndex(currentIndex, this.availableParts.length);
 
-    const prevObject = this.assetManager.models.get(this.currentPartChoice);
-    this.scene.remove(prevObject);
+    const prevOjbect = this.assetManager.models.get(this.currentPart.name);
+    this.scene.remove(prevOjbect);
 
-    const nextPartName = partNames[nextIndex];
-    const nextObject = this.assetManager.models.get(nextPartName);
+    const nextPart = this.availableParts[nextIndex];
+
+    const nextObject = this.assetManager.models.get(nextPart.name);
     nextObject.position.copy(this.mountPoint);
     this.scene.add(nextObject);
 
-    this.currentPartChoice = nextPartName;
+    this.currentPart = nextPart;
   }
 
   selectPartChoice = () => {
-    if (!this.currentPartType || !this.currentPartChoice) {
-      return;
-    }
+    // Add this part to the turret
+    this.turret.push(this.currentPart);
 
-    // Get 3d object for this part
-    const object = this.assetManager.models.get(
-      this.currentPartChoice
-    ) as THREE.Object3D;
+    // Get the next set of available parts
+    this.availableParts = this.currentPart.getAccepted();
+    const nextPart = this.availableParts[0];
 
-    // Get mount point for next part choice
-    const mountChild = getChildNameIncludes(object, "Mount");
-    if (!mountChild) {
-      console.error("No mounting point found");
-      return;
-    }
+    // Get the mount point on current part for the new available parts
+    this.updateMountPoint(this.currentPart, nextPart.mountName);
 
-    // Position offsets need scaling as well
-    const mountPosition = mountChild.position;
-    mountPosition.multiplyScalar(0.01);
-
-    this.mountPoint.copy(mountPosition);
-
-    let nextPartType = typesMap.get(this.currentPartType) ?? PartType.BASE;
-
-    this.nextPartType(nextPartType);
-  };
-
-  @action nextPartType(type: PartType) {
-    this.currentPartType = type;
-
-    // Get all the parts of this type
-    const partNames = partsMap.get(type) ?? [];
-
-    // Look at the first
-    this.currentPartChoice = partNames[0];
-
-    const object = this.assetManager.models.get(this.currentPartChoice);
+    // Show first choice immediately
+    this.currentPart = this.availableParts[0];
+    const object = this.assetManager.models.get(this.currentPart.name);
     object.position.copy(this.mountPoint);
     this.scene.add(object);
-  }
+  };
 
   private setupCamera() {
     this.camera.fov = 75;
@@ -130,6 +105,24 @@ export class GameState {
     directLight.position.copy(new THREE.Vector3(0.75, 1, 0.75).normalize());
 
     this.scene.add(directLight);
+  }
+
+  private updateMountPoint(fromPart: Part, mountName: string) {
+    const object = this.assetManager.models.get(
+      fromPart.name
+    ) as THREE.Object3D;
+    const mountObject = object.getObjectByName(mountName); //getChildNameIncludes(object, mountName);
+    if (!mountObject) {
+      return;
+    }
+
+    // Position offsets need scaling as well
+    const mountPosition = mountObject.position;
+    mountPosition.multiplyScalar(0.01);
+
+    this.mountPoint.add(mountPosition);
+
+    console.log("mount pos", mountPosition);
   }
 
   private update = () => {

@@ -10,11 +10,11 @@ interface GameScreenProps {
 
 export const GameScreen: React.FC<GameScreenProps> = observer(
   ({ gameState }) => {
-    const partType = gameState.currentPartType;
+    const part = gameState.currentPart;
 
     return (
       <div className="game-screen">
-        <div className="choose-text">Choose a {partType}</div>
+        <div className="choose-text">Choose a {part.type}</div>
 
         <div className="switcher">
           <div

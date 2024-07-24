@@ -1,59 +1,79 @@
-export enum PartName {
-  BASE_TURRET_0 = "Base_Turret_Lvl0",
-  BASE_TURRET_1 = "Base_Turret_Lvl1",
-  BASE_TURRET_2 = "Base_Turret_Lvl2",
-  BASE_TURRET_3 = "Base_Turret_Lvl3",
-  BASE_TURRET_4 = "Base_Turret_Lvl4",
-  BASE_TURRET_5 = "Base_Turret_Lvl5",
-  BASE_MOUNT = "Base_Top_Mount",
-  BASE_MOUNT_SMALL = "Base_Top_Mount_Simple",
-  HEAD_BOT_ROUND_1 = "Cockpit_Bot_Round_Lvl1",
-  HEAD_BOT_ROUND_2 = "Cockpit_Bot_Round_Lvl2",
-  HEAD_BOT_SPY = "Cockpit_Bot_Spy",
-  HEAD_BOT_WEDGE_1 = "Cockpit_Bot_Wedge_Lvl1",
-  HEAD_BOT_WEDGE_2 = "Cockpit_Bot_Wedge_Lvl2",
-}
-
+/**
+ * ORDER:
+ * - Base
+ * - ? Mid section
+ * - Base mount
+ * - Head
+ * - ? Head bracket or Back plate
+ * - Left arm
+ * - Right arm
+ * - Top
+ */
 export enum PartType {
   BASE = "Base",
-  MID = "Mid section",
+  BASE_SECTION = "Base section",
   BASE_MOUNT = "Base mount",
   HEAD = "Head",
+  HEAD_BRACKET = "Head bracket",
   ARM_MOUNT = "Arm mount",
   ARM = "Arm",
 }
 
-export const partsMap = new Map<PartType, PartName[]>([
-  [
-    PartType.BASE,
-    [
-      PartName.BASE_TURRET_0,
-      PartName.BASE_TURRET_1,
-      PartName.BASE_TURRET_2,
-      PartName.BASE_TURRET_3,
-      PartName.BASE_TURRET_4,
-      PartName.BASE_TURRET_5,
-    ],
-  ],
-  [PartType.BASE_MOUNT, [PartName.BASE_MOUNT, PartName.BASE_MOUNT_SMALL]],
-  [
-    PartType.HEAD,
-    [
-      PartName.HEAD_BOT_ROUND_1,
-      PartName.HEAD_BOT_ROUND_2,
-      PartName.HEAD_BOT_SPY,
-      PartName.HEAD_BOT_WEDGE_1,
-      PartName.HEAD_BOT_WEDGE_2,
-    ],
-  ],
-]);
-
-export const typesMap = new Map<PartType, PartType>([
-  [PartType.BASE, PartType.BASE_MOUNT],
-  [PartType.BASE_MOUNT, PartType.HEAD],
-]);
-
 export interface Part {
-  name: PartName;
+  name: string;
   type: PartType;
+  getAccepted: () => Part[];
+  mountName: string; // refers to name of mount object on previous part
+}
+
+export function getBases(): Part[] {
+  const turretBases: Part[] = [];
+  for (let i = 0; i < 6; i++) {
+    const turretBase: Part = {
+      name: `Base_Turret_Lvl${i}`,
+      type: PartType.BASE,
+      getAccepted: getBaseMounts,
+      mountName: "",
+    };
+    turretBases.push(turretBase);
+  }
+
+  return turretBases;
+}
+
+export function getBaseMounts(): Part[] {
+  return ["Base_Top_Mount", "Base_Top_Mount_Simple"].map((name) => ({
+    name,
+    type: PartType.BASE_MOUNT,
+    getAccepted: getHeads,
+    mountName: "Mount_Top",
+  }));
+}
+
+export function getHeads(): Part[] {
+  return [
+    "Cockpit_Bot_Round_Lvl1",
+    "Cockpit_Bot_Round_Lvl2",
+    "Cockpit_Bot_Spy",
+    "Cockpit_Bot_Wedge_Lvl1",
+    "Cockpit_Bot_Wedge_Lvl2",
+  ].map((name) => ({
+    name,
+    type: PartType.HEAD,
+    getAccepted: getBrackets,
+    mountName: "Mount_Top",
+  }));
+}
+
+export function getBrackets(): Part[] {
+  return [
+    "Backpack_Bracket_Lvl1",
+    "Backpack_Bracket_Lvl2",
+    "Backpack_Bracket_Lvl3",
+  ].map((name) => ({
+    name,
+    type: PartType.HEAD_BRACKET,
+    getAccepted: () => [],
+    mountName: "Mount_Backpack",
+  }));
 }
