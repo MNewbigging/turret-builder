@@ -14,7 +14,10 @@ export class GameState {
   private camera = new THREE.PerspectiveCamera();
   private controls: OrbitControls;
 
-  currentTurret = new Map<PartType, Part>();
+  turret = new Map<PartType, Part>();
+
+  @observable currentPartType?: PartType;
+  currentPartChoice?: PartName;
 
   constructor(private assetManager: AssetManager) {
     makeAutoObservable(this);
@@ -35,46 +38,50 @@ export class GameState {
     const envMap = this.assetManager.textures.get("env-map");
     this.scene.environment = envMap;
 
-    // There must always be a base part
-    this.currentTurret.set(PartType.BASE, {
-      name: PartName.BASE_TURRET_1,
-      type: PartType.BASE,
-    });
-    const base = this.assetManager.models.get(PartName.BASE_TOWER_1);
-    this.scene.add(base);
+    // Start with the base
+    this.nextPartType(PartType.BASE);
 
     // Start game
     this.update();
   }
 
-  // Cycles through other parts of the same type
-  @action nextPartItem = (part: Part) => {
-    // Get list of other parts of this type
-    const partNames = partsMap.get(part.type) ?? [];
+  changePartChoice(direction: "prev" | "next") {
+    if (!this.currentPartType || !this.currentPartChoice) {
+      return;
+    }
 
-    // Get the index of current part in that list
+    const partNames = partsMap.get(this.currentPartType) ?? [];
+
     const currentIndex = partNames.findIndex(
-      (partName) => partName === part.name
+      (partName) => partName === this.currentPartChoice
     );
 
-    // Find the index of the next part, wrap around the list
     const nextIndex =
-      currentIndex === partNames.length - 1 ? 0 : currentIndex + 1;
+      direction === "next"
+        ? this.getNextIndex(currentIndex, partNames.length)
+        : this.getPrevIndex(currentIndex, partNames.length);
 
-    // Can now get the next part name
-    const nextPartName = partNames[nextIndex];
-
-    // Remove the previous part from the scene
-    const prevObject = this.assetManager.models.get(part.name);
+    const prevObject = this.assetManager.models.get(this.currentPartChoice);
     this.scene.remove(prevObject);
 
-    // Add the new one to the scene
-    const nextObject = this.assetManager.models.get(nextPartName);
-    this.scene.add(nextObject);
+    const nextPartName = partNames[nextIndex];
+    this.scene.add(this.assetManager.models.get(nextPartName));
 
-    // This is now the new part of its type
-    this.currentTurret.set(part.type, { name: nextPartName, type: part.type });
-  };
+    this.currentPartChoice = nextPartName;
+  }
+
+  @action nextPartType(type: PartType) {
+    this.currentPartType = type;
+
+    // Get all the parts of this type
+    const partNames = partsMap.get(type) ?? [];
+
+    // Look at the first
+    this.currentPartChoice = partNames[0];
+
+    const object = this.assetManager.models.get(this.currentPartChoice);
+    this.scene.add(object);
+  }
 
   private setupCamera() {
     this.camera.fov = 75;
@@ -101,4 +108,12 @@ export class GameState {
 
     this.renderPipeline.render(dt);
   };
+
+  private getNextIndex(currentIndex: number, length: number) {
+    return currentIndex === length - 1 ? 0 : currentIndex + 1;
+  }
+
+  private getPrevIndex(currentIndex: number, length: number) {
+    return currentIndex === 0 ? length - 1 : currentIndex - 1;
+  }
 }

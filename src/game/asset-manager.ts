@@ -57,42 +57,15 @@ export class AssetManager {
 
   private loadModels(fbxLoader: FBXLoader, gltfLoader: GLTFLoader) {
     // bases
-
-    const baseTurretLvl0 = new URL(
-      "/models/base_turret_lvl0.fbx",
-      import.meta.url
-    ).href;
-    fbxLoader.load(baseTurretLvl0, (group) =>
-      this.models.set(PartName.BASE_TURRET_1, group)
-    );
-
-    const baseTurretLtLvl1 = new URL(
-      "/models/base_turret_lt_lvl1.fbx",
-      import.meta.url
-    ).href;
-    fbxLoader.load(baseTurretLtLvl1, (group) =>
-      this.models.set(PartName.BASE_TURRET_LEGS_1, group)
-    );
-
-    const baseTower0 = new URL("/models/base_tower_lvl0.fbx", import.meta.url)
+    const baseTurrets = new URL("/models/Base_Turrets.fbx", import.meta.url)
       .href;
-    fbxLoader.load(baseTower0, (group) =>
-      this.models.set(PartName.BASE_TOWER_1, group)
-    );
-
-    const demoTurret = new URL("/models/Demo_Turret_1.fbx", import.meta.url)
-      .href;
-    fbxLoader.load(demoTurret, (group) =>
-      this.models.set("demo-turret", group)
-    );
-
-    // mounts
-
-    const baseTopMount = new URL("/models/base_top_mount.fbx", import.meta.url)
-      .href;
-    fbxLoader.load(baseTopMount, (group) =>
-      this.models.set("base-top-mount", group)
-    );
+    fbxLoader.load(baseTurrets, (group) => {
+      // Pull out the children
+      group.children.forEach((child) => {
+        console.log(child.name);
+        this.models.set(child.name, child);
+      });
+    });
   }
 
   private loadTextures(
