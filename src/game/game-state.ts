@@ -28,8 +28,6 @@ export class GameState {
 
     this.renderPipeline = new RenderPipeline(this.scene, this.camera);
 
-    //this.setupLights();
-
     this.controls = new OrbitControls(this.camera, this.renderPipeline.canvas);
     this.controls.enableDamping = true;
     this.controls.enablePan = false;
@@ -71,6 +69,7 @@ export class GameState {
     this.scene.add(nextObject);
 
     this.currentPart = nextPart;
+    console.log("part", nextObject);
   }
 
   selectPartChoice = () => {
@@ -82,7 +81,7 @@ export class GameState {
     const nextPart = this.availableParts[0];
 
     // Get the mount point on current part for the new available parts
-    this.updateMountPoint(this.currentPart, nextPart.mountName);
+    this.updateMountPoint(this.currentPart, nextPart.mountsTo);
 
     // Show first choice immediately
     this.currentPart = this.availableParts[0];
@@ -97,21 +96,11 @@ export class GameState {
     this.camera.position.set(0, 1.5, 3);
   }
 
-  private setupLights() {
-    const ambientLight = new THREE.AmbientLight(undefined, 0.25);
-    this.scene.add(ambientLight);
-
-    const directLight = new THREE.DirectionalLight(undefined, 2);
-    directLight.position.copy(new THREE.Vector3(0.75, 1, 0.75).normalize());
-
-    this.scene.add(directLight);
-  }
-
   private updateMountPoint(fromPart: Part, mountName: string) {
     const object = this.assetManager.models.get(
       fromPart.name
     ) as THREE.Object3D;
-    const mountObject = object.getObjectByName(mountName); //getChildNameIncludes(object, mountName);
+    const mountObject = object.getObjectByName(mountName);
     if (!mountObject) {
       return;
     }
@@ -121,8 +110,6 @@ export class GameState {
     mountPosition.multiplyScalar(0.01);
 
     this.mountPoint.add(mountPosition);
-
-    console.log("mount pos", mountPosition);
   }
 
   private update = () => {

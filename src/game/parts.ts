@@ -23,7 +23,7 @@ export interface Part {
   name: string;
   type: PartType;
   getAccepted: () => Part[];
-  mountName: string; // refers to name of mount object on previous part
+  mountsTo: string; // refers to name of mount object on previous part
 }
 
 export function getBases(): Part[] {
@@ -33,7 +33,7 @@ export function getBases(): Part[] {
       name: `Base_Turret_Lvl${i}`,
       type: PartType.BASE,
       getAccepted: getBaseMounts,
-      mountName: "",
+      mountsTo: "",
     };
     turretBases.push(turretBase);
   }
@@ -46,7 +46,7 @@ export function getBaseMounts(): Part[] {
     name,
     type: PartType.BASE_MOUNT,
     getAccepted: getHeads,
-    mountName: "Mount_Top",
+    mountsTo: "SOCKET_Mount_Top",
   }));
 }
 
@@ -61,7 +61,7 @@ export function getHeads(): Part[] {
     name,
     type: PartType.HEAD,
     getAccepted: getBrackets,
-    mountName: "Mount_Top",
+    mountsTo: "SOCKET_Mount_Top",
   }));
 }
 
@@ -74,6 +74,6 @@ export function getBrackets(): Part[] {
     name,
     type: PartType.HEAD_BRACKET,
     getAccepted: () => [],
-    mountName: "Mount_Backpack",
+    mountsTo: "Mount_Backpack",
   }));
 }

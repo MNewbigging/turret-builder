@@ -57,14 +57,29 @@ export class AssetManager {
   private loadModels(fbxLoader: FBXLoader, gltfLoader: GLTFLoader) {
     // turret bases
 
-    const baseTurrets = new URL("/models/Base_Turrets.fbx", import.meta.url)
+    const baseTurret0 = new URL("/models/Base_Turret_Lvl0.fbx", import.meta.url)
       .href;
-    fbxLoader.load(baseTurrets, (group) => {
-      // Pull out the children
-      group.children.forEach((child) => {
-        this.models.set(child.name, child);
-      });
-    });
+    fbxLoader.load(baseTurret0, (group) => this.models.set(group.name, group));
+
+    const baseTurret1 = new URL("/models/Base_Turret_Lvl1.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(baseTurret1, (group) => this.models.set(group.name, group));
+
+    const baseTurret2 = new URL("/models/Base_Turret_Lvl2.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(baseTurret2, (group) => this.models.set(group.name, group));
+
+    const baseTurret3 = new URL("/models/Base_Turret_Lvl3.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(baseTurret3, (group) => this.models.set(group.name, group));
+
+    const baseTurret4 = new URL("/models/Base_Turret_Lvl4.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(baseTurret4, (group) => this.models.set(group.name, group));
+
+    const baseTurret5 = new URL("/models/Base_Turret_Lvl5.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(baseTurret5, (group) => this.models.set(group.name, group));
 
     // base mounts
 
@@ -86,25 +101,34 @@ export class AssetManager {
       "/models/Cockpit_Bot_Round_Lvl1.fbx",
       import.meta.url
     ).href;
-    fbxLoader.load(botRound1, (group) => this.models.set(group.name, group));
+    fbxLoader.load(botRound1, (group) => {
+      group.name = "Cockpit_Bot_Round_Lvl1";
+      this.models.set(group.name, group);
+    });
 
     const botRound2 = new URL(
       "/models/Cockpit_Bot_Round_Lvl2.fbx",
       import.meta.url
     ).href;
-    fbxLoader.load(botRound2, (group) => this.models.set(group.name, group));
+    fbxLoader.load(botRound2, (group) => {
+      group.name = "Cockpit_Bot_Round_Lvl2";
+      this.models.set(group.name, group);
+    });
 
-    const botSpy = new URL(
-      "/models/Cockpit_Bot_Spy@Cockpit_Bot_Spy_Look_Around.fbx",
-      import.meta.url
-    ).href;
-    fbxLoader.load(botSpy, (group) => this.models.set(group.name, group));
+    const botSpy = new URL("/models/Cockpit_Bot_Spy.fbx", import.meta.url).href;
+    fbxLoader.load(botSpy, (group) => {
+      group.name = "Cockpit_Bot_Spy";
+      this.models.set(group.name, group);
+    });
 
     const wedge1 = new URL(
       "/models/Cockpit_Bot_Wedge_Lvl1.fbx",
       import.meta.url
     ).href;
-    fbxLoader.load(wedge1, (group) => this.models.set(group.name, group));
+    fbxLoader.load(wedge1, (group) => {
+      console.log(group);
+      this.models.set(group.name, group);
+    });
 
     const wedge2 = new URL(
       "/models/Cockpit_Bot_Wedge_Lvl2.fbx",
