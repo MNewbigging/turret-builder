@@ -126,7 +126,6 @@ export class AssetManager {
       import.meta.url
     ).href;
     fbxLoader.load(wedge1, (group) => {
-      console.log(group);
       this.models.set(group.name, group);
     });
 
