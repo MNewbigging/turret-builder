@@ -73,7 +73,26 @@ export function getBrackets(): Part[] {
   ].map((name) => ({
     name,
     type: PartType.HEAD_BRACKET,
-    getAccepted: () => [],
+    getAccepted: getLeftArms,
     mountsTo: "Mount_Backpack",
+  }));
+}
+
+export function getLeftArms(): Part[] {
+  return [
+    "Weapon_Bazooka_Lvl1",
+    "Weapon_Bazooka_Lvl2",
+    "Weapon_Bazooka_Lvl3",
+    "Weapon_Plasma_Lvl1",
+    "Weapon_Plasma_Lvl2",
+    "Weapon_Plasma_Lvl3",
+    "Weapon_Radar_Lvl1",
+    "Weapon_Radar_Lvl2",
+    "Weapon_Radar_Lvl3",
+  ].map((name) => ({
+    name,
+    type: PartType.ARM,
+    mountsTo: "SOCKET_Mount_Weapon_L",
+    getAccepted: () => [],
   }));
 }

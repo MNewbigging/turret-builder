@@ -154,6 +154,65 @@ export class AssetManager {
       import.meta.url
     ).href;
     fbxLoader.load(bracket3, (group) => this.models.set(group.name, group));
+
+    // weapons
+
+    const bazooka1 = new URL("/models/Weapon_Bazooka_Lvl1.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(bazooka1, (group) => {
+      group.name = "Weapon_Bazooka_Lvl1";
+      this.models.set(group.name, group);
+    });
+
+    const bazooka2 = new URL("/models/Weapon_Bazooka_Lvl2.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(bazooka2, (group) => {
+      group.name = "Weapon_Bazooka_Lvl2";
+      this.models.set(group.name, group);
+    });
+
+    const bazooka3 = new URL("/models/Weapon_Bazooka_Lvl3.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(bazooka3, (group) => {
+      group.name = "Weapon_Bazooka_Lvl3";
+      this.models.set(group.name, group);
+    });
+
+    const plasma1 = new URL("/models/Weapon_Plasma_Lvl1.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(plasma1, (group) => {
+      this.models.set(group.name, group);
+    });
+
+    const plasma2 = new URL("/models/Weapon_Plasma_Lvl2.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(plasma2, (group) => {
+      this.models.set(group.name, group);
+    });
+
+    const plasma3 = new URL("/models/Weapon_Plasma_Lvl3.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(plasma3, (group) => {
+      this.models.set(group.name, group);
+    });
+
+    const radar1 = new URL("/models/Weapon_Radar_Lvl1.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(radar1, (group) => {
+      this.models.set(group.name, group);
+    });
+
+    const radar2 = new URL("/models/Weapon_Radar_Lvl2.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(radar2, (group) => {
+      this.models.set(group.name, group);
+    });
+
+    const radar3 = new URL("/models/Weapon_Radar_Lvl3.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(radar3, (group) => {
+      this.models.set(group.name, group);
+    });
   }
 
   private loadTextures(

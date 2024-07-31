@@ -69,7 +69,7 @@ export class GameState {
     this.scene.add(nextObject);
 
     this.currentPart = nextPart;
-    console.log("part", nextObject);
+    console.log(nextObject);
   }
 
   selectPartChoice = () => {
@@ -129,18 +129,4 @@ export class GameState {
   private getPrevIndex(currentIndex: number, length: number) {
     return currentIndex === 0 ? length - 1 : currentIndex - 1;
   }
-}
-
-function getChildNameIncludes(
-  object: THREE.Object3D,
-  name: string
-): THREE.Object3D | undefined {
-  let foundChild: THREE.Object3D | undefined = undefined;
-  object.traverse((child) => {
-    if (child.name.includes(name)) {
-      foundChild = child as THREE.Object3D;
-    }
-  });
-
-  return foundChild;
 }
